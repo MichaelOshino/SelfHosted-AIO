@@ -1,0 +1,7 @@
+- hosts: 3x-ui
+  tags: 3x-ui
+  become: yes
+  tasks:
+    - name: Начало деплоя 3x-ui
+      include_role:
+        name: 3x-ui

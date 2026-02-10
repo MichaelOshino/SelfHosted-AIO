@@ -1,0 +1,53 @@
+- name: Проверка директорий 3x-ui
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /opt/3x-ui/3x-ui
+    - /opt/3x-ui/haproxy
+    - /opt/3x-ui/traefik
+    
+- name: Генерация конфига haproxy 
+  template:
+    src: haproxy.cfg.j2
+    dest: /opt/3x-ui/haproxy/haproxy.cfg
+  notify: Перезапуск haproxy
+
+- name: Генерация docker-compose файлов
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: docker-compose.haproxy.yml.j2, dest: /opt/3x-ui/docker-compose.haproxy.yml }
+    - { src: docker-compose.3x-ui.yml.j2, dest: /opt/3x-ui/docker-compose.3x-ui.yml }
+    - { src: docker-compose.traefik.yml.j2, dest: /opt/3x-ui/docker-compose.traefik.yml }
+
+- name: Запуск haproxy
+  community.docker.docker_compose_v2:
+    project_src: /opt/3x-ui
+    files:
+      - docker-compose.haproxy.yml
+    state: present
+
+- name: Запуск 3x-ui-app
+  community.docker.docker_compose_v2:
+    project_src: /opt/3x-ui
+    files:
+      - docker-compose.3x-ui.yml
+    state: present
+
+- name: Создание acme.json для traefik
+  ansible.builtin.command:
+    cmd: install -m 600 /dev/null /opt/3x-ui/traefik/acme.json
+  args:
+    creates: /opt/3x-ui/traefik/acme.json
+
+- name: Запуск traefik
+  community.docker.docker_compose_v2:
+    project_src: /opt/3x-ui
+    files:
+      - docker-compose.traefik.yml
+    state: present

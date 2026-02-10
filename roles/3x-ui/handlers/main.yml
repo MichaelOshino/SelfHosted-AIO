@@ -1,0 +1,8 @@
+- name: Перезапуск haproxy
+  community.docker.docker_compose_v2:
+    project_src: /opt/3x-ui
+    files:
+      - docker-compose.haproxy.yml
+    state: present
+    recreate: always
+    pull: policy

@@ -1,0 +1,67 @@
+services:
+  3x-ui:
+    image:  ghcr.io/mhsanaei/3x-ui:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.middlewares.robots-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
+
+      - "traefik.http.routers.3x-ui-router.rule=Host(`{{ main_domain }}`)"
+      - "traefik.http.routers.3x-ui-router.entrypoints=websecure"
+      - "traefik.http.routers.3x-ui-router.tls=true"
+      - "traefik.http.routers.3x-ui-router.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.3x-ui-router.middlewares=robots-headers"
+      - "traefik.http.routers.3x-ui-router.priority=1"
+      - "traefik.http.routers.3x-ui-router.service=3x-ui-service"
+      - "traefik.http.services.3x-ui-service.loadbalancer.server.port=2053"
+      - "traefik.http.services.3x-ui-service.loadbalancer.server.scheme=http"
+
+      - "traefik.http.routers.3x-ui-sub.rule=Host(`{{ main_domain }}`) && PathPrefix(`{{ sub_path }}`)"
+      - "traefik.http.routers.3x-ui-sub.entrypoints=websecure"
+      - "traefik.http.routers.3x-ui-sub.tls=true"
+      - "traefik.http.routers.3x-ui-sub.middlewares=robots-headers"
+      - "traefik.http.routers.3x-ui-sub.priority=10"
+      - "traefik.http.routers.3x-ui-sub.service=3x-ui-sub-service"
+      - "traefik.http.services.3x-ui-sub-service.loadbalancer.server.port={{ sub_port }}"
+      - "traefik.http.services.3x-ui-sub-service.loadbalancer.server.scheme=http"
+
+      - "traefik.http.routers.xhttp.rule=Host(`{{ main_domain }}`) && PathPrefix(`{{ xhttp_path }}`)"
+      - "traefik.http.routers.xhttp.entrypoints=websecure"
+      - "traefik.http.routers.xhttp.tls=true"
+      - "traefik.http.routers.xhttp.middlewares=robots-headers"
+      - "traefik.http.routers.xhttp.priority=20"
+      - "traefik.http.routers.xhttp.service=xhttp"
+      - "traefik.http.services.xhttp.loadbalancer.server.port={{ xhttp_port }}"
+      - "traefik.http.services.xhttp.loadbalancer.server.scheme=h2c"
+
+      - "traefik.http.routers.ws.rule=Host(`{{ main_domain }}`) && PathPrefix(`{{ ws_path }}`)"
+      - "traefik.http.routers.ws.entrypoints=websecure"
+      - "traefik.http.routers.ws.tls=true"
+      - "traefik.http.routers.ws.middlewares=robots-headers"
+      - "traefik.http.routers.ws.priority=30"
+      - "traefik.http.routers.ws.service=ws"
+      - "traefik.http.services.ws.loadbalancer.server.port={{ ws_port }}"
+      - "traefik.http.services.ws.loadbalancer.server.scheme=http"
+
+      - "traefik.http.routers.httpupgrade.rule=Host(`{{ main_domain }}`) && PathPrefix(`{{ httpupgrade_path }}`)"
+      - "traefik.http.routers.httpupgrade.entrypoints=websecure"
+      - "traefik.http.routers.httpupgrade.tls=true"
+      - "traefik.http.routers.httpupgrade.middlewares=robots-headers"
+      - "traefik.http.routers.httpupgrade.priority=40"
+      - "traefik.http.routers.httpupgrade.service=httpupgrade"
+      - "traefik.http.services.httpupgrade.loadbalancer.server.port={{ httpupgrade_port }}"
+      - "traefik.http.services.httpupgrade.loadbalancer.server.scheme=http"
+
+    environment:
+      - "XRAY_VMESS_AEAD_FORCED=false"
+      - "XUI_ENABLE_FAIL2BAN=true"
+      
+    volumes:
+      - ./3x-ui/:/etc/x-ui/
+    networks:
+      - general
+   
+networks:
+  general:
+    external: true

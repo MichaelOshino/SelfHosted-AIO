@@ -1,0 +1,43 @@
+global
+    maxconn 5000
+    log stdout format raw local0
+
+    tune.bufsize 16384
+    tune.recv_enough 32768
+
+defaults
+    mode tcp
+    log global
+    timeout connect 5s
+    timeout client 30m
+    timeout server 30m
+
+    option tcp-smart-accept
+    option tcp-smart-connect
+
+    default-server init-addr last,libc,none resolvers docker resolve-prefer ipv4
+
+resolvers docker
+    nameserver dns1 127.0.0.11:53  
+    hold valid 10s                 
+
+frontend http
+    bind *:80
+    default_backend traefik_http
+
+frontend https
+    bind *:443
+    tcp-request inspect-delay 2s
+    tcp-request content accept if { req_ssl_hello_type 1 }
+    acl is_my_domain req_ssl_sni -i {{ main_domain }}
+    use_backend traefik_https if is_my_domain
+    default_backend xray
+
+backend traefik_http
+    server s traefik:80
+
+backend traefik_https
+    server s traefik:443
+
+backend xray
+    server s 3x-ui:443
