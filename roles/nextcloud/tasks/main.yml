@@ -1,0 +1,27 @@
+- name: Проверка директорий nextcloud
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /opt/nextcloud/
+    - /opt/nextcloud/env
+    
+- name: Генерация файла окружения nextcloud
+  template:
+    src: nextcloud.env.j2
+    dest: /opt/nextcloud/env/nextcloud.env
+
+- name: Генерация docker-compose nextcloud
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/nextcloud/docker-compose.yml
+
+- name: Запуск nextcloud
+  community.docker.docker_compose_v2:
+    project_src: /opt/nextcloud
+    files:
+      - docker-compose.yml
+    state: present

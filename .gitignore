@@ -2,8 +2,7 @@ etc/
 roles/firefly/
 roles/mailu/
 
-group_vars/nextcloud.yml
 group_vars/ryot.yml
-roles/traefik/
-roles/nextcloud/
 roles/ryot/
+
+roles/traefik/

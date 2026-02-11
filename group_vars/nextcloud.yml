@@ -1,0 +1,23 @@
+# Домен/поддомен nextcloud (обязательно указать)
+nextcloud_domain: cloud.example.com
+
+# Логин и пароль (минимум 10 символов в пароле) администратора сервера (обязательно указать или убрать значения)
+# Значения автоматически подставляются при установке и будет создан админ с этими данными
+nextcloud_admin_user: admin
+nextcloud_admin_password: 0123456789
+
+# Образ и версия nextcloud
+nextcloud_app_version: nextcloud:latest
+# Образ и версия БД
+nextcloud_db_version: mariadb:lts
+# Образ и версия redis
+nextcloud_redis_version: redis:alpine
+
+# Доступы БД (хост, пароль админа БД, название БД, логин, пароль)
+# Значения автоматически подставляются при установке
+nextcloud_db_host: mariadb
+nextcloud_db_root_pw: rootpasswordmariadb
+nextcloud_db_name: nextcloud-db
+nextcloud_db_user: nextcloud-user
+nextcloud_db_pw: userpassword-pw
+

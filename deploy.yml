@@ -1,7 +1,6 @@
-- hosts: 3x-ui
-  tags: 3x-ui
+- hosts: all
   become: yes
-  tasks:
-    - name: Начало деплоя 3x-ui
-      include_role:
-        name: 3x-ui
+  roles:
+    - { role: 3x-ui, tags: 3x-ui }
+    - { role: nextcloud, tags: nextcloud }
+

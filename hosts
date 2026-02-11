@@ -1,2 +1,8 @@
 [3x-ui]
 127.0.0.1 ansible_connection=local
+
+[nextcloud]
+127.0.0.1 ansible_connection=local
+
+
+

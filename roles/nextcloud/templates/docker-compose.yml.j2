@@ -1,0 +1,75 @@
+services:
+  nextcloud-app:
+    image: {{ nextcloud_app_version }}
+    env_file:
+      - ./env/nextcloud.env
+    volumes:
+      - ./nextcloud:/var/www/html
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.middlewares.robots-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
+
+      - "traefik.http.middlewares.hsts-header.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.hsts-header.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.hsts-header.headers.stsPreload=true"
+
+      - "traefik.http.routers.nextcloud-router.rule=Host(`{{ nextcloud_domain }}`)"
+      - "traefik.http.routers.nextcloud-router.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud-router.tls=true"
+      - "traefik.http.routers.nextcloud-router.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nextcloud-router.middlewares=robots-headers,hsts-header"
+      - "traefik.http.routers.nextcloud-router.service=nextcloud-service"
+      - "traefik.http.services.nextcloud-service.loadbalancer.server.port=80"
+      - "traefik.http.services.nextcloud-service.loadbalancer.server.scheme=http"
+    networks:
+      - reverse-proxy
+      - nextcloud-network
+
+  mariadb:
+    image: {{ nextcloud_db_version }}
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW --binlog-expire-logs-seconds=86400
+    env_file:
+      - ./env/nextcloud.env
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - nextcloud-network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "mariadb-admin ping -u root -p\"$$MYSQL_ROOT_PASSWORD\" -h 127.0.0.1"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  cron:
+    image: nextcloud:latest
+    restart: unless-stopped
+    env_file:
+      - ./env/nextcloud.env
+    volumes:
+      - ./nextcloud:/var/www/html
+    entrypoint: /cron.sh
+    depends_on:
+      - nextcloud-app
+    networks:
+      - nextcloud-network
+
+  redis:
+    image: {{ nextcloud_redis_version }}
+    restart: unless-stopped
+    volumes:
+      - ./redis:/data
+    networks:
+      - nextcloud-network
+
+networks:
+  nextcloud-network:
+    driver: bridge
+  reverse-proxy:
+    external: true
