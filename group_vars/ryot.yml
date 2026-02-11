@@ -1,0 +1,43 @@
+# Домен/поддомен ryot (обязательно указывать)
+ryot_domain: ryot.example.com
+
+# Токен доступа для администратора для API (изменить обязательно), само API graphql внутри контейнера на 5000 порту во внешний мир специально не вынесено
+ryot_admin_token: YQ2J9Iizk9mkshYE5jtQbJNF6dlEjASh
+
+# Секретный ключ pro версии (при наличии лицензии указать)
+ryot_pro_key:
+
+# Образ и версия ryot
+# Тонкости обновления: https://docs.ryot.io/migration.html
+ryot_app_version: ignisda/ryot:v10
+# Образ и версия БД
+ryot_db_version: postgres:16-alpine
+
+# Разрешить регистрацию пользотелям
+ryot_allow_registration: true
+
+# Временная зона
+ryot_time_zone: Europe/Moscow
+
+# Выключить телеметрию ryot
+ryot_disable_telemetry: true
+
+# Через сколько дней сбросится авторизация
+ryot_autorisation_days: 7
+
+# Максимальный размер загрузки файлов пользователям в мегабайтах
+ryot_max_upload_file_size: 200
+
+# Доступы БД POSTGRES (хост, порт, название, юзер, пароль юзера)
+ryot_db_host: postgresql
+ryot_db_port: 5432
+ryot_db_name: ryot-db
+ryot_db_user: ryot-user
+ryot_db_pw: ryot-pw
+
+# Доступы к SMTP для отправки писем ryot (почтовый сервер, ящик отображаемый в письмах, логин для авторизации, пароль), в основном для уведомлений
+ryot_smtp_srv: 
+ryot_smtp_mailbox: 
+ryot_smtp_user: 
+ryot_smtp_pw: 
+

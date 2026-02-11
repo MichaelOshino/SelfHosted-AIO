@@ -1,0 +1,45 @@
+services:
+  ryot-app:
+    image: {{ ryot_app_version }}
+    env_file: ./env/ryot.env
+    restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.middlewares.robots-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
+
+      - "traefik.http.routers.ryot-router.rule=Host(`{{ ryot_domain }}`)"
+      - "traefik.http.routers.ryot-router.entrypoints=websecure"
+      - "traefik.http.routers.ryot-router.tls=true"
+      - "traefik.http.routers.ryot-router.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.ryot-router.middlewares=robots-headers"
+      - "traefik.http.routers.ryot-router.service=ryot-service"
+      - "traefik.http.services.ryot-service.loadbalancer.server.port=8000"
+      - "traefik.http.services.ryot-service.loadbalancer.server.scheme=http"
+    networks:
+      - reverse-proxy
+      - ryot-network
+
+  postgresql:
+    image: {{ ryot_db_version }}
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    env_file: ./env/ryot.env
+    restart: unless-stopped
+    networks:
+      - ryot-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+      
+networks:
+  ryot-network:
+    driver: bridge
+  reverse-proxy:
+    external: true

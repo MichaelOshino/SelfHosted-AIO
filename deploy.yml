@@ -3,4 +3,4 @@
   roles:
     - { role: 3x-ui, tags: 3x-ui }
     - { role: nextcloud, tags: nextcloud }
-
+    - { role: ryot, tags: ryot }

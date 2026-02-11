@@ -1,6 +1,3 @@
 etc/
 roles/firefly/
 roles/mailu/
-
-group_vars/ryot.yml
-roles/ryot/

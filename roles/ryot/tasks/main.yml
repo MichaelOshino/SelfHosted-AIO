@@ -1,0 +1,27 @@
+- name: Проверка директорий ryot
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /opt/ryot
+    - /opt/ryot/env
+
+- name: Генерация файла окружения ryot
+  template:
+    src: ryot.env.j2
+    dest: /opt/ryot/env/ryot.env
+
+- name: Генерация docker-compose ryot
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/ryot/docker-compose.yml
+
+- name: Запуск ryot
+  community.docker.docker_compose_v2:
+    project_src: /opt/ryot
+    files:
+      - docker-compose.yml
+    state: present
