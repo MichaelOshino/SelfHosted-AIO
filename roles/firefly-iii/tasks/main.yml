@@ -1,0 +1,32 @@
+- name: Проверка директорий firefly-iii
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /opt/firefly-iii
+    - /opt/firefly-iii/env
+
+- name: Генерация файла окружения firefly-iii-app
+  template:
+    src: firefly-app.env.j2
+    dest: /opt/firefly-iii/env/firefly-app.env
+
+- name: Генерация файла окружения БД firefly-iii
+  template:
+    src: firefly-mariadb.env.j2
+    dest: /opt/firefly-iii/env/firefly-mariadb.env
+
+- name: Генерация docker-compose firefly-iii
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/firefly-iii/docker-compose.yml
+
+- name: Запуск firefly-iii
+  community.docker.docker_compose_v2:
+    project_src: /opt/firefly-iii
+    files:
+      - docker-compose.yml
+    state: present

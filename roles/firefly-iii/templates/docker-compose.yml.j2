@@ -1,0 +1,64 @@
+services:
+  firefly-iii-app:
+    image: {{ fireflyiii_app_version }}
+    restart: unless-stopped
+    volumes:
+      - ./data/firefly-iii:/var/www/html/storage/upload
+    env_file: 
+      - ./env/firefly-app.env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.middlewares.robots-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
+
+      - "traefik.http.routers.fireflyiii-router.rule=Host(`{{ fireflyiii_domain }}`)"
+      - "traefik.http.routers.fireflyiii-router.entrypoints=websecure"
+      - "traefik.http.routers.fireflyiii-router.tls=true"
+      - "traefik.http.routers.fireflyiii-router.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.fireflyiii-router.middlewares=robots-headers"
+      - "traefik.http.routers.fireflyiii-router.service=fireflyiii-service"
+      - "traefik.http.services.fireflyiii-service.loadbalancer.server.port=8080"
+      - "traefik.http.services.fireflyiii-service.loadbalancer.server.scheme=http"
+    networks:
+      - reverse-proxy
+      - firefly-iii-network
+
+  mariadb:
+    image: {{ fireflyiii_db_version }}
+    hostname: firefly-mariadb
+    restart: unless-stopped
+    env_file: ./env/firefly-mariadb.env
+    networks:
+      - firefly-iii-network
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "bash", "-c", "mariadb-admin ping -u root -p\"$$MYSQL_ROOT_PASSWORD\" -h 127.0.0.1"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  redis:
+    image: {{ fireflyiii_redis_version }}
+    restart: unless-stopped
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - firefly-iii-network
+
+  cron:
+    image: alpine
+    restart: unless-stopped
+    command: sh -c "echo \"0 3 * * * wget -qO- http://firefly-iii-app:8080/api/v1/cron/{{ fireflyiii_static_cron_token }}\" | crontab - && crond -f -L /dev/stdout"
+    networks:
+      - firefly-iii-network
+      
+networks:
+  firefly-iii-network:
+    driver: bridge
+  reverse-proxy:
+    external: true

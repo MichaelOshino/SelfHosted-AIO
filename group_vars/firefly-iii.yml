@@ -1,0 +1,53 @@
+# Образ и версия firefly
+fireflyiii_app_version: fireflyiii/core:latest
+# Образ и версия БД
+fireflyiii_db_version: mariadb:lts
+# Образ и версия redis
+fireflyiii_redis_version: redis:alpine
+
+# Домен/поддомен firefly-iii (обязательно указать)
+fireflyiii_domain: firefly.example.com
+
+# Ящик владельца сайта (для корректной работы крайне желательно указать корректный ящик)
+fireflyiii_site_owner: mail@example.com
+
+# Ключ шифрования сессий (должен содержать ровно 32 символа), именить обязательно и хранить в максимальной безопасности!
+# Сгенерировать можно тут: https://www.random.org/strings/?num=5&len=32&digits=on&upperalpha=on&loweralpha=on&unique=on&format=html&rnd=new
+fireflyiii_app_key: SomeRandomStringOf32CharsExactly
+
+# Токен cron задания (должен содержать ровно 32 символа), подробнее: https://docs.firefly-iii.org/how-to/firefly-iii/advanced/cron/
+# Сгенерировать можно тут: https://www.random.org/strings/?num=5&len=32&digits=on&upperalpha=on&loweralpha=on&unique=on&format=html&rnd=new
+fireflyiii_static_cron_token: PnS5FfqEH6GyEqPJCiWERQKe6wgqnKvq
+
+# Язык по умолчанию, поддерживаемые языки:  https://github.com/firefly-iii/firefly-iii/blob/main/config/firefly.php#L123
+fireflyiii_default_language: ru_RU
+
+# Временная зона по умолчанию, поддерживаемы зоны: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+fireflyiii_tz: Europe/Moscow
+
+# Координаты по умолчанию для карт
+fireflyiii_map_default_lat: 55.755864
+fireflyiii_map_default_long: 37.617698
+fireflyiii_map_default_zoom: 6
+
+# Будет ли firefly-iii отправлять письма об ошибках 
+fireflyiii_send_error_message: true
+
+# Данные подключения к БД
+fireflyiii_db_connection: mysql
+fireflyiii_db_host: mariadb
+fireflyiii_db_port: 3306
+fireflyiii_db_root_pw: fireflyiii-db-root-pw
+fireflyiii_db_database: fireflyiii-db
+fireflyiii_db_username: fireflyiii-user
+fireflyiii_db_password: fireflyiii_password
+
+# Настройки почты для отправки писем, подробнее: https://docs.firefly-iii.org/how-to/firefly-iii/advanced/notifications/#email
+fireflyiii_mail_mailer: log
+fireflyiii_mail_host: null
+fireflyiii_mail_port: 2525
+fireflyiii_mail_from: changeme@example.com
+fireflyiii_mail_username: null
+fireflyiii_mail_password: null
+fireflyiii_mail_encryption: null
+fireflyiii_mail_sendmail_command: 

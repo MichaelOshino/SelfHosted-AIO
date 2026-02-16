@@ -7,4 +7,5 @@
 [ryot]
 127.0.0.1 ansible_connection=local
 
-
+[firefly-iii]
+127.0.0.1 ansible_connection=local
