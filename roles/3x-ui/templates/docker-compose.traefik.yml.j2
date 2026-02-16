@@ -17,7 +17,7 @@ services:
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
          
     volumes:
-      - /opt/3x-ui/traefik/acme.json:/letsencrypt/acme.json 
+      - /opt/3x-ui/data/traefik/acme.json:/letsencrypt/acme.json 
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - general

@@ -1,6 +1,6 @@
 - name: Проверка директорий и их создание, при отсутствии
   file:
-    path: /opt/traefik
+    path: /opt/traefik/data/traefik
     state: directory
     owner: root
     group: root
@@ -13,9 +13,9 @@
 
 - name: Создание acme.json для traefik
   ansible.builtin.command:
-    cmd: install -m 600 /dev/null /opt/traefik/acme.json
+    cmd: install -m 600 /dev/null /opt/traefik/data/traefik/acme.json
   args:
-    creates: /opt/traefik/acme.json
+    creates: /opt/traefik/data/traefik/acme.json
 
 - name: Деплой traefik
   community.docker.docker_compose_v2:

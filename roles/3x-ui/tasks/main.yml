@@ -6,14 +6,13 @@
     group: root
     mode: '0755'
   loop:
-    - /opt/3x-ui/3x-ui
-    - /opt/3x-ui/haproxy
-    - /opt/3x-ui/traefik
+    - /opt/3x-ui/data/haproxy
+    - /opt/3x-ui/data/traefik
     
 - name: Генерация конфига haproxy 
   template:
     src: haproxy.cfg.j2
-    dest: /opt/3x-ui/haproxy/haproxy.cfg
+    dest: /opt/3x-ui/data/haproxy/haproxy.cfg
   notify: Перезапуск haproxy
 
 - name: Генерация docker-compose файлов
@@ -41,9 +40,9 @@
 
 - name: Создание acme.json для traefik
   ansible.builtin.command:
-    cmd: install -m 600 /dev/null /opt/3x-ui/traefik/acme.json
+    cmd: install -m 600 /dev/null /opt/3x-ui/data/traefik/acme.json
   args:
-    creates: /opt/3x-ui/traefik/acme.json
+    creates: /opt/3x-ui/data/traefik/acme.json
 
 - name: Запуск traefik
   community.docker.docker_compose_v2:

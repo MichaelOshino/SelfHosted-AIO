@@ -5,7 +5,7 @@ services:
       - "80:80/tcp"
       - "443:443/tcp"
     volumes:
-      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./data/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     restart: unless-stopped
     networks:
       - general

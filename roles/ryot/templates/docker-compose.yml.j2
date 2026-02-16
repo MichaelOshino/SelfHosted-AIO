@@ -26,7 +26,7 @@ services:
   postgresql:
     image: {{ ryot_db_version }}
     volumes:
-      - ./postgresql:/var/lib/postgresql/data
+      - ./data/postgresql:/var/lib/postgresql/data
     env_file: ./env/ryot.env
     restart: unless-stopped
     networks:
