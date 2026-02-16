@@ -36,7 +36,7 @@ ansible-playbook -i hosts deploy.yml --tags service_name
 Вместо **service_name** укажите название желаемых сервисов для запуска (возможно перечисление нескольких через запятую без пробела):  
 3x-ui  
 nextcloud  
-ryot
+ryot  
 firefly-iii
 __________________________
 
