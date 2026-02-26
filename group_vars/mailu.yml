@@ -1,0 +1,58 @@
+# ==============================================================================
+# Основные переменные для развёртывания Mailu.
+# ==============================================================================
+# В этом файле собраны наиболее востребованные настройки.
+# Если требуется параметр, которого нет тут, то добавьте/измените его в:
+# roles/mailu/templates/mailu.env.j2
+# Согласно официальной документации: https://mailu.io/2024.06/configuration.html
+# ==============================================================================
+
+# ОБЯЗАТЕЛЬНО. Указать IPv4 сервера
+server_ip: 
+
+# ОБЯЗАТЕЛЬНО. Указать ключ, должен содержать 16 символов 
+# Сгенерировать можно тут: https://www.random.org/strings/?num=5&len=16&digits=on&upperalpha=on&loweralpha=on&unique=on&format=html&rnd=new
+secret_key: 
+
+# ОБЯЗАТЕЛЬНО. Основной почтовый домен 
+domain: example.com
+# Системный аккаунт почтового сервера 
+postmaster: postmaster
+
+# ОБЯЗАТЕЛЬНО. Список публичных имён хостов, по которым сервер доступен (SMTP, панель администратора и т.д.).
+hostnames: mail.example.com
+
+# ОБЯЗАТЕЛЬНО. Данные администратора панели, укажи собственные значения!
+# По текущему шаблону будет создан админ с адресом: admin@example.com с паролем password
+# При update в initial_admin_mode админ будет создан или обновлен его пароль, если требуется только создать и отключить изменение пароля в будущем, то стоит указать: ifmissing
+admin_account: admin
+admin_domain: example.com
+admin_password: password
+initial_admin_mode: update
+
+# Включить api: true
+api: 
+# При включении API обязательно сгенерировать токен, например тут: https://www.random.org/strings/?num=5&len=32&digits=on&upperalpha=on&loweralpha=on&unique=on&format=html&rnd=new
+api_token: 
+
+# Включение/отключение веб-клиента и сервисов
+services_enabled:
+  roundcube: true
+  snappymail: false
+  antivirus: false
+  webdav: true
+  fetchmail: true
+  fts_attachments: false
+  oletools: true
+
+# Название сайта
+sitename: "Почтовый №1"
+
+# Ссылка в админке на сайт
+website: https://example.com
+
+# Временная зона, указывать согласно: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: Europe/Moscow
+
+
+

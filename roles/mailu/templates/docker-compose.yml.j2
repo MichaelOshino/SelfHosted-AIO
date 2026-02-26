@@ -1,0 +1,283 @@
+services:
+  front:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}nginx:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-front
+    ports:
+      - "{{ server_ip }}:80:80"
+      - "{{ server_ip }}:443:443"
+      - "{{ server_ip }}:25:25"
+      - "{{ server_ip }}:465:465"
+      - "{{ server_ip }}:587:587"
+      - "{{ server_ip }}:110:110"
+      - "{{ server_ip }}:995:995"
+      - "{{ server_ip }}:143:143"
+      - "{{ server_ip }}:993:993"
+      - "{{ server_ip }}:4190:4190"
+    networks:
+      - default
+      - webmail
+      - radicale
+    volumes:
+      - "./data/certs:/certs"
+      - "./data/overrides/nginx:/overrides:ro"
+    depends_on:
+      - resolver
+    dns:
+      - 192.168.203.254
+
+{% if services_enabled.get('roundcube', false) %}
+  webmail:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}webmail:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-webmail
+    volumes:
+      - "./data/webmail:/data"
+      - "./data/overrides/roundcube:/overrides:ro"
+    networks:
+      - webmail
+    depends_on:
+      - front
+{% elif services_enabled.get('snappymail', false) %}
+  webmail:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}webmail:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-webmail
+    volumes:
+      - "./data/webmail:/data"
+      - "./data/overrides/snappymail:/overrides:ro"
+    networks:
+      - webmail
+    depends_on:
+      - front
+{% endif %}
+
+  admin:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}admin:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-admin
+    volumes:
+      - "./data/data:/data"
+      - "./data/dkim:/dkim"
+    depends_on:
+      - redis
+      - resolver
+    dns:
+      - 192.168.203.254
+
+  imap:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}dovecot:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-imap
+    volumes:
+      - "./data/mail:/mail"
+      - "./data/overrides/dovecot:/overrides:ro"
+    networks:
+      - default
+      - fts_attachments
+    depends_on:
+      - front
+{% if services_enabled.get('fts_attachments', false) %}
+      - fts_attachments
+{% endif %} 
+      - resolver
+    dns:
+      - 192.168.203.254
+
+  smtp:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}postfix:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-smtp
+    volumes:
+      - "./data/mailqueue:/queue"
+      - "./data/overrides/postfix:/overrides:ro"
+    depends_on:
+      - front
+      - resolver
+    dns:
+      - 192.168.203.254
+
+  antispam:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}rspamd:${MAILU_VERSION:-2024.06}
+    hostname: antispam
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-antispam
+    networks:
+      - default
+      - oletools
+      - clamav
+    volumes:
+      - "./data/filter:/var/lib/rspamd"
+      - "./data/overrides/rspamd:/overrides:ro"
+    depends_on:
+      - front
+      - redis
+{% if services_enabled.get('oletools', false) %}
+      - oletools
+{% endif %}
+{% if services_enabled.get('antivirus', false) %}
+      - antivirus
+{% endif %}
+      - resolver
+    dns:
+      - 192.168.203.254
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - "./data/redis:/data"
+    depends_on:
+      - resolver
+    dns:
+      - 192.168.203.254
+
+  resolver:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}unbound:${MAILU_VERSION:-2024.06}
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-resolver
+    restart: always
+    networks:
+      default:
+        ipv4_address: 192.168.203.254
+
+{% if services_enabled.get('antivirus', false) %}
+  antivirus:
+    image: clamav/clamav-debian:1.4
+    restart: always
+    logging:
+      driver: journald
+      options:
+        tag: mailu-antivirus
+    networks:
+      - clamav
+    volumes:
+      - "./data/clamav:/var/lib/clamav"
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 `cat /tmp/clamd.pid` && kill -0 `cat /tmp/freshclam.pid`"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+{% endif %}
+{% if services_enabled.get('webdav', false) %}
+  webdav:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}radicale:${MAILU_VERSION:-2024.06}
+    restart: always
+    logging:
+      driver: journald
+      options:
+        tag: mailu-webdav
+    volumes:
+      - "./data/dav:/data"
+    networks:
+      - radicale
+{% endif %}
+{% if services_enabled.get('fetchmail', false) %}
+  fetchmail:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}fetchmail:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: ./env/mailu.env
+    logging:
+      driver: journald
+      options:
+        tag: mailu-fetchmail
+    volumes:
+      - "./data/data/fetchmail:/data"
+    depends_on:
+      - admin
+      - smtp
+      - imap
+      - resolver
+    dns:
+      - 192.168.203.254
+{% endif %}
+{% if services_enabled.get('fts_attachments', false) %}
+  fts_attachments:
+    image: apache/tika:latest-full
+    hostname: tika
+    logging:
+      driver: journald
+      options:
+        tag: mailu-tika
+    restart: always
+    networks:
+      - fts_attachments
+    depends_on:
+      - resolver
+    dns:
+      - 192.168.203.254
+    healthcheck:
+      test: ["CMD-SHELL", "wget -nv -t1 -O /dev/null http://127.0.0.1:9998/tika || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+{% endif %}
+{% if services_enabled.get('oletools', false) %}
+  oletools:
+    image: ${DOCKER_ORG:-ghcr.io/mailu}/${DOCKER_PREFIX:-}oletools:${MAILU_VERSION:-2024.06}
+    hostname: oletools
+    logging:
+      driver: journald
+      options:
+        tag: mailu-oletools
+    restart: always
+    networks:
+      - oletools
+    depends_on:
+      - resolver
+    dns:
+      - 192.168.203.254
+{% endif %}
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.203.0/24
+  radicale:
+    driver: bridge
+  webmail:
+    driver: bridge
+  clamav:
+    driver: bridge
+  oletools:
+    driver: bridge
+    internal: true
+  fts_attachments:
+    driver: bridge
+    internal: true

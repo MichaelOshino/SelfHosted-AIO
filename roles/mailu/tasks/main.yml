@@ -1,0 +1,28 @@
+- name: Проверка директорий mailu
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /opt/mailu/
+    - /opt/mailu/env
+    
+- name: Генерация файла окружения mailu
+  template:
+    src: mailu.env.j2
+    dest: /opt/mailu/env/mailu.env
+
+- name: Генерация docker-compose mailu
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/mailu/docker-compose.yml
+
+- name: Запуск mailu
+  community.docker.docker_compose_v2:
+    project_src: /opt/mailu
+    files:
+      - docker-compose.yml
+    state: present
+    remove_orphans: true

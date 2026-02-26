@@ -5,3 +5,4 @@
     - { role: nextcloud, tags: nextcloud }
     - { role: ryot, tags: ryot }
     - { role: firefly-iii, tags: firefly-iii }
+    - { role: mailu, tags: mailu }
