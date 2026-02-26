@@ -1,9 +1,15 @@
-# Образ и версия firefly
-fireflyiii_app_version: fireflyiii/core:latest
-# Образ и версия БД
-fireflyiii_db_version: mariadb:lts
-# Образ и версия redis
-fireflyiii_redis_version: redis:alpine
+# ==============================================================================
+# Основные переменные для развёртывания Firefly III.
+# ==============================================================================
+# В этом файле собраны наиболее востребованные настройки.
+# Если требуется параметр, которого нет тут, то добавьте/измените его в:
+# roles/firefly-iii/templates/firefly-app.env.j2
+# Согласно официальной документации: https://github.com/firefly-iii/firefly-iii/blob/main/.env.example
+#
+# Для БД: 
+# roles/firefly-iii/templates/firefly-mariadb.env.j2
+# Согласно официальной документации: https://hub.docker.com/_/mariadb#environment-variables
+# ==============================================================================
 
 # Домен/поддомен firefly-iii (обязательно указать)
 fireflyiii_domain: firefly.example.com
@@ -18,6 +24,13 @@ fireflyiii_app_key: SomeRandomStringOf32CharsExactly
 # Токен cron задания (должен содержать ровно 32 символа), подробнее: https://docs.firefly-iii.org/how-to/firefly-iii/advanced/cron/
 # Сгенерировать можно тут: https://www.random.org/strings/?num=5&len=32&digits=on&upperalpha=on&loweralpha=on&unique=on&format=html&rnd=new
 fireflyiii_static_cron_token: PnS5FfqEH6GyEqPJCiWERQKe6wgqnKvq
+
+# Образ и версия firefly
+fireflyiii_app_version: fireflyiii/core:latest
+# Образ и версия БД
+fireflyiii_db_version: mariadb:lts
+# Образ и версия redis
+fireflyiii_redis_version: redis:alpine
 
 # Язык по умолчанию, поддерживаемые языки:  https://github.com/firefly-iii/firefly-iii/blob/main/config/firefly.php#L123
 fireflyiii_default_language: ru_RU
