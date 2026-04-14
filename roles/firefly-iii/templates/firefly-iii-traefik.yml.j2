@@ -1,0 +1,20 @@
+http:
+  routers:
+    firefly-iii-rtr:
+      rule: "Host(`{{ fireflyiii_domain }}`)"
+      entryPoints: 
+        - "websecure"
+      tls:
+        certResolver: "letsencrypt"
+      middlewares:
+        - "noindex-headers@file"
+        - "hsts-headers@file"
+        - "secure-headers@file"
+        - "ratelimit-control@file"
+      service: "firefly-iii-svc"
+
+  services:
+    firefly-iii-svc:
+      loadBalancer:
+        servers:
+          - url: "http://firefly-iii-app:8080"

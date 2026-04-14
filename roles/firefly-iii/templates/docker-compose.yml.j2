@@ -9,19 +9,6 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-    labels:
-      - "traefik.enable=true"
-
-      - "traefik.http.middlewares.robots-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
-
-      - "traefik.http.routers.fireflyiii-router.rule=Host(`{{ fireflyiii_domain }}`)"
-      - "traefik.http.routers.fireflyiii-router.entrypoints=websecure"
-      - "traefik.http.routers.fireflyiii-router.tls=true"
-      - "traefik.http.routers.fireflyiii-router.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.fireflyiii-router.middlewares=robots-headers"
-      - "traefik.http.routers.fireflyiii-router.service=fireflyiii-service"
-      - "traefik.http.services.fireflyiii-service.loadbalancer.server.port=8080"
-      - "traefik.http.services.fireflyiii-service.loadbalancer.server.scheme=http"
     networks:
       - reverse-proxy
       - firefly-iii-network

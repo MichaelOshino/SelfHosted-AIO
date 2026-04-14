@@ -19,6 +19,12 @@
     src: firefly-mariadb.env.j2
     dest: /opt/firefly-iii/env/firefly-mariadb.env
 
+- name: Деплой динамического конфига traefik
+  template:
+    src: firefly-iii-traefik.yml.j2
+    dest: /opt/traefik/data/dynamic/firefly-iii-traefik.yml
+    mode: '0644'
+
 - name: Генерация docker-compose firefly-iii
   template:
     src: docker-compose.yml.j2

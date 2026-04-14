@@ -1,0 +1,20 @@
+http:
+  routers:
+    nextcloud-rtr:
+      rule: "Host(`{{ nextcloud_domain }}`)"
+      entryPoints: 
+        - "websecure"
+      tls:
+        certResolver: "letsencrypt"
+      middlewares:
+        - "noindex-headers@file"
+        - "hsts-headers@file"
+        - "secure-headers@file"
+        - "ratelimit-control@file"
+      service: "nextcloud-svc"
+
+  services:
+    nextcloud-svc:
+      loadBalancer:
+        servers:
+          - url: "http://nextcloud-app:80"

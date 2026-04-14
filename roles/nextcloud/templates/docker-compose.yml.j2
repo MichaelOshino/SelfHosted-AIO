@@ -9,23 +9,7 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-    labels:
-      - "traefik.enable=true"
 
-      - "traefik.http.middlewares.robots-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
-
-      - "traefik.http.middlewares.hsts-header.headers.stsSeconds=15552000"
-      - "traefik.http.middlewares.hsts-header.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.hsts-header.headers.stsPreload=true"
-
-      - "traefik.http.routers.nextcloud-router.rule=Host(`{{ nextcloud_domain }}`)"
-      - "traefik.http.routers.nextcloud-router.entrypoints=websecure"
-      - "traefik.http.routers.nextcloud-router.tls=true"
-      - "traefik.http.routers.nextcloud-router.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.nextcloud-router.middlewares=robots-headers,hsts-header"
-      - "traefik.http.routers.nextcloud-router.service=nextcloud-service"
-      - "traefik.http.services.nextcloud-service.loadbalancer.server.port=80"
-      - "traefik.http.services.nextcloud-service.loadbalancer.server.scheme=http"
     networks:
       - reverse-proxy
       - nextcloud-network
